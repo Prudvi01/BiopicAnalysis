@@ -9,7 +9,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from oresapi import Session
 import sys
-reload(sys)
+#reload(sys)
 sys.setdefaultencoding('utf8')
 
 allORES = [] # will store ORES scores for all revisions
