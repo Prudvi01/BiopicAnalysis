@@ -7,9 +7,13 @@ import textstat
 import mwparserfromhell
 import pandas as pd
 import matplotlib.pyplot as plt
+from oresapi import Session
+
+allORES = [] # will store ORES scores for all revisions
 
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '█', printEnd = "\r"):
+
     """
     Call in a loop to create terminal progress bar
     @params:
@@ -28,16 +32,22 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
     print('\r%s |%s| %s/%s %s%% %s' % (prefix, bar, iteration, total, percent, suffix), end = printEnd)
     # Print New Line on Complete
     if iteration == total: 
-        print()
+        print()     
 
-def getORES(revid): 
+def updateORES(revids): 
     '''
     Uses API to get the scores of a "batch of revisions", optimal batch size is 50
+    '''
     '''
     url = "https://ores.wikimedia.org/v3/scores/enwiki/?revids=" + str(revid)
     page = requests.get(url)
     di = json.loads(page.text)
-    return di['enwiki']['scores']
+    '''
+    my_session = Session("https://ores.wikimedia.org", user_agent="Demonstrating how to use Session - my_address@email.com")
+    results = my_session.score("enwiki", ["damaging", "goodfaith"], revids)
+    
+    for rev_id, result in zip(revids, results):
+        allORES.append(result)
 
 def getReadabilityMetrics(test_data) : 
     '''
@@ -137,7 +147,7 @@ def plotmetrics(metrics):
     plt.xlabel("Revisions")
     plt.ylabel('Score')
     plt.legend(fontsize=8)
-    plt.savefig('results/metrics/'+article_name+'error.png',bbox_inches = "tight",dpi=800)
+    plt.savefig('results/metrics/'+article_name+'.png',bbox_inches = "tight",dpi=800)
     
     plt.show()
 
@@ -170,15 +180,69 @@ def plotcounts(counts):
     plt.savefig('results/counts/'+article_name+'.png',bbox_inches = "tight",dpi=800)
     
     plt.show()
-        
 
+def plotores(allORES):
+    damaging = []
+    goodfaith = []
+    startrevi = allORES.index('startrevi')
+    endrevi = allORES.index('endrevi')
+    reviafterrelease = allORES.index('reviafterrelease')
+    allORES.remove('reviafterrelease')
+    allORES.remove('startrevi')
+    allORES.remove('endrevi')
+    article_name = 'Walt_Disney_ORES'
+    for entry in allORES:
+        damaging.append(entry['damaging']['score']['probability']['true'])
+        goodfaith.append(entry['goodfaith']['score']['probability']['true'])
+    
+    plt.style.use('fivethirtyeight')
+    plt.plot(damaging, label='references', linewidth= 1.5)
+    plt.plot(goodfaith, label='wikilinks', linewidth= 1.5)
+    plt.suptitle(article_name, fontsize = 16)
+    plt.xlabel("Revisions")
+    plt.ylabel('allORES')
+    plt.axvline(x=startrevi,color='red', linewidth= 1.5)
+    plt.axvline(x=endrevi,color='red', linewidth= 1.5)
+    plt.axvline(x=reviafterrelease, color='gray',linestyle='--', linewidth= 1.5)
+    plt.legend(fontsize=8)
+    plt.savefig('results/ores/'+article_name+'.png',bbox_inches = "tight",dpi=800)
+    plt.show()
 
 def plottheseforchristsake(allORES, metrics, counts):
     plotmetrics(metrics)
     plotcounts(counts)
+    plotores(allORES)
 
+def savethese(allORES, metrics, counts, name):
+    name = name.replace(' ', '_')
+    print(name)
+    ores_file = open('results/ores/'+ name + '_ores.txt', 'w', encoding='utf-8')
+    counts_file = open('results/counts/'+ name + '_counts.txt', 'w', encoding='utf-8')
+    metrics_file = open('results/metrics/'+ name + '_metrics.txt', 'w', encoding='utf-8')
+    for dic in allORES:
+        if type(dic) != str:
+            json.dump(dic, ores_file) 
+            ores_file.write("\n")
+        else:
+            ores_file.write(dic + '\n')
 
+    for dic in metrics:
+        if type(dic) != str:
+            json.dump(dic, metrics_file) 
+            metrics_file.write("\n")
+        else:
+            metrics_file.write(dic + '\n')
+    
+    for dic in counts:
+        if type(dic) != str:
+            json.dump(dic, counts_file) 
+            counts_file.write("\n")
+        else:
+            counts_file.write(dic + '\n')
 
+    ores_file.close()
+    metrics_file.close()
+    counts_file.close()
 
 def AnalyzeValidEdits(name, date):
     '''
@@ -193,48 +257,68 @@ def AnalyzeValidEdits(name, date):
         di = xmltodict.parse(f.read())
     
     revisions = [x for x in di['page']['revision']] #list of all articles for a movie
-    revs = [] #Batch of revisions for ORES Analysis
-    allORES = [] #will store ORES scores for all revisions
-    metrics = []
-    counts = []
-    revi = 0
+    revs = [] # Batch of revisions for ORES Analysis
+    metrics = [] # List of metrics dictionaries
+    counts = [] # List of counts dictionaries
+    sha1 = {} # Tracks the sha1 values to count reverts
+    revi = 0 
     revilimit = len(revisions)
     article_name = 'Walt_Disney'
     printProgressBar(0, revilimit, prefix = 'Progress:', suffix = 'Complete', length = 50)
-    breaker = 0
-    breaker1 = 0
-    breaker2 = 0
+    breaker = [0, 0, 0, 0, 0] # Used to maintain flags 
 
     for i in range(0, revilimit) :
         revi += 1
         printProgressBar(revi, revilimit, prefix = article_name, suffix = 'Complete', length = 50)
+        sha1Value = revisions[i]['sha1'] 
+        
         diff, APIdate, RevisionDate = dateDifference(date, revisions[i]['timestamp'].split('T')[0])
         if RevisionDate > APIdate:
-            if breaker == 0:
-                breaker = 1
+            if breaker[0] == 0:
+                breaker[0] = 1
                 metrics.append('reviafterrelease')
                 counts.append('reviafterrelease')
+                allORES.append('reviafterrelease')
                 reviafterrelease = i # First revision after release
                 firstrevidateafterelease = RevisionDate # Revision date afte the movie release
-        if diff < -60 :
-            continue
-        if diff > -60:
-            if breaker1 == 0:
-                breaker1 = 1
-                metrics.append('startrevi')
-                counts.append('startrevi')
-        if diff > 60:
-            if breaker2 == 0:
-                breaker2 = 1
-                metrics.append('endrevi')
-                counts.append('endrevi')
-        if diff > 60:
-            allORES.append(getORES(revids))
-            break
 
+        '''
+        if diff < -200 :
+            continue
+        '''
+        if diff > -120 and diff < -60:
+            if breaker[1] == 0:
+                breaker[1] = 1
+                metrics.append('120 days start')
+                counts.append('120 days start')
+                allORES.append('120 days start')
+
+        if diff >= -60:
+            if breaker[2] == 0:
+                breaker[2] = 1
+                metrics.append('60 days start')
+                counts.append('60 days start')
+                allORES.append('60 days start')
+
+        if diff > 60:
+            if breaker[3] == 0:
+                breaker[3] = 1
+                metrics.append('60 days end')
+                counts.append('60 days end')
+                allORES.append('60 days end')
         
-        
-        #print(i, end=',')
+        if diff > 120:
+            if breaker[4] == 0:
+                breaker[4] = 1
+                metrics.append('120 days end')
+                counts.append('120 days end')
+                allORES.append('120 days end')
+                
+        '''
+        if diff > 200:
+            updateORES(revids)
+            break
+        '''
         try:
             metrics.append(getReadabilityMetrics(revisions[i]['text']['#text']))
             counts.append(getCounts(revisions[i]['text']['#text']))
@@ -242,15 +326,21 @@ def AnalyzeValidEdits(name, date):
         except:
             pass
         
-        if len(revs) >= 50 : #since ORES scores are to be calculated in batches of 50s
-            revids = str(revs).replace(', ','|')[1:-1].replace("'","")
+        if len(revs) >= 50 : # since ORES scores are to be calculated in batches of 50s
+            revids = [int(x) for x in revs] #str(revs).replace(', ','|')[1:-1].replace("'","")
             revs = []
-            allORES.append(getORES(revids))
-    print(allORES[0])
-    print(reviafterrelease)
-    print(firstrevidateafterelease)
-    plottheseforchristsake(allORES, metrics, counts)
-    return allORES
+            updateORES(revids)
+    
+        try:
+            if sha1[sha1Value]:
+                sha1[sha1Value] += 1
+        except:
+            sha1[sha1Value] = 1
+    counts.append(sha1)
+    
+    
+    #plottheseforchristsake(allORES, metrics, counts)
+    return allORES, metrics, counts
     
 def getEachArticle() :
     '''
@@ -267,20 +357,33 @@ def getEachArticle() :
     with open("releaseDates.json",'r') as f :
         dates = json.loads(f.read())
 
-    name = "Walt Before Mickey||/wiki/Walt_Before_Mickey"
-    
-    i = 0
-    namefordate = "Walt Before Mickey"
-    print(list(movieDetails[name][i].keys())[i].split('||'))
-    name, url = list(movieDetails[name][i].keys())[i].split('||')
-    date = dates[namefordate] if namefordate in dates else "--" 
-    print(name, date)
-    if date != "--" : #because we couldn't get all release dates using IMDB API
-        output = AnalyzeValidEdits(name, date) #vaild means before and after 60 days
+    #name = "Walt Before Mickey||/wiki/Walt_Before_Mickey"
+    for MovieName in movieNames:
+        completedfile = open("completed.txt", "r")
+        completed = completedfile.readlines()
+        completedfile.close()
+        if not (MovieName + '\n') in completed:  
+            i = 0
+            namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
+            name, url = list(movieDetails[MovieName][i].keys())[i].split('||')
+            date = dates[namefordate] if namefordate in dates else "--" 
+            print(name, date)
+            if date != "--" : #because we couldn't get all release dates using IMDB API
+                allORES, metrics, counts = AnalyzeValidEdits(name, date) #vaild means before and after 60 days
+                savethese(allORES, metrics, counts, name)
+            else:
+                print('Skipping ' + MovieName + '. No date found')
+            print('')
+            f = open("completeduse.txt", "a")
+            f.write(MovieName + '\n')
+            f.close()
+            print("Article "+ MovieName +" is done:")
+            
+        else:
+            print('Skipping ' + MovieName)
+
         
-    df = pd.DataFrame(output) 
-    df.to_csv(name + '.csv', index=False)
-    '''
+'''
     for movie in movieNames :
         name, url = movie.split('||')
         date = dates[name] if name in dates else "--" 
@@ -293,3 +396,33 @@ startTime = time.time()
 getEachArticle()
 endTime = time.time()
 print("TIME ELAPSED = " + str(endTime - startTime))
+
+
+def run(dire): 
+    completedfile = open("completed.txt", "r")
+    completed = completedfile.readlines()
+    completedfile.close()
+    fileNames = os.listdir(str(dire))
+    for article_name in fileNames:
+        if os.path.getsize(dire + article_name) > 0:
+            if not article_name == '.DS_Store' and not article_name == '.gitignore':
+                if not (article_name[:-4] + '\n') in completed:  
+                    '''  
+                    arguments = sys.argv
+                    numOfRevi = num_of_revi('data_set/' + article_name)
+                    if len(arguments) < 2:
+                        revilimit = numOfRevi
+                    else:
+                        revilimit = int(sys.argv[1])
+                    '''
+                    plotDist(dire, article_name[:-4])
+                    print('')
+                    f = open("completeduse.txt", "a")
+                    f.write(article_name[:-4] + '\n')
+                    f.close()
+                    print("Article "+article_name[:-4]+" is done:")
+                    
+                else:
+                    print('Skipping ' + article_name[:-4])
+
+run('data_set/')
