@@ -256,7 +256,7 @@ def AnalyzeValidEdits(name, date):
     3) Count wikilinks, references and number of words
     '''
     article = "dataset/" + name.replace(' ','_') + ".xml"
-    with open(article, 'r') as f :
+    with open(article, 'r', encoding="utf-8") as f :
         di = xmltodict.parse(f.read())
     
     revisions = [x for x in di['page']['revision']] #list of all articles for a movie
