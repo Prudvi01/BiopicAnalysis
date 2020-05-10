@@ -252,7 +252,7 @@ def AnalyzeValidEdits(name, date):
     2) Get its readability metrics
     3) Count wikilinks, references and number of words
     '''
-    article = "testData/" + name.replace(' ','_') + ".xml"
+    article = "dataset/" + name.replace(' ','_') + ".xml"
     with open(article, 'r') as f :
         di = xmltodict.parse(f.read())
     
