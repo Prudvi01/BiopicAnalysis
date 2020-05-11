@@ -247,7 +247,7 @@ def savethese(allORES, metrics, counts, name):
     metrics_file.close()
     counts_file.close()
 
-def AnalyzeValidEdits(name, date):
+def AnalyzeValidEdits(name, date, di):
     '''
     Valid edits means the ones within a period of 2 months
     For each valid edit, it does the following 3 tasks
@@ -255,9 +255,6 @@ def AnalyzeValidEdits(name, date):
     2) Get its readability metrics
     3) Count wikilinks, references and number of words
     '''
-    article = "dataset/" + name.replace(' ','_') + ".xml"
-    with open(article, 'r', encoding="utf-8") as f :
-        di = xmltodict.parse(f.read())
     
     revisions = [x for x in di['page']['revision']] #list of all articles for a movie
     revs = [] # Batch of revisions for ORES Analysis
@@ -371,7 +368,18 @@ def getEachArticle() :
             date = dates[namefordate] if namefordate in dates else "--" 
             print(name, date)
             if date != "--" : #because we couldn't get all release dates using IMDB API
-                allORES, metrics, counts = AnalyzeValidEdits(name, date) #vaild means before and after 60 days
+                article = "dataset/" + name.replace(' ','_') + ".xml"
+                try:
+                    with open(article, 'r', encoding="utf-8") as f :
+                        di = xmltodict.parse(f.read())
+                        print('%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%')
+                except:
+                    print('File not found!', article)
+                    with open('filesnotfound.txt', 'a', encoding='utf-8') as f:
+                        f.write(name + '\n')
+                    continue
+                print('################# #############')
+                allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
                 savethese(allORES, metrics, counts, name)
             else:
                 print('Skipping ' + MovieName + '. No date found')
