@@ -266,13 +266,12 @@ def AnalyzeValidEdits(name, date):
     sha1 = {} # Tracks the sha1 values to count reverts
     revi = 0 
     revilimit = len(revisions)
-    article_name = 'Walt_Disney'
     printProgressBar(0, revilimit, prefix = 'Progress:', suffix = 'Complete', length = 50)
     breaker = [0, 0, 0, 0, 0] # Used to maintain flags 
 
     for i in range(0, revilimit) :
         revi += 1
-        printProgressBar(revi, revilimit, prefix = article_name, suffix = 'Complete', length = 50)
+        printProgressBar(revi, revilimit, prefix = name, suffix = 'Complete', length = 50)
         sha1Value = revisions[i]['sha1'] 
         
         diff, APIdate, RevisionDate = dateDifference(date, revisions[i]['timestamp'].split('T')[0])
@@ -377,7 +376,7 @@ def getEachArticle() :
             else:
                 print('Skipping ' + MovieName + '. No date found')
             print('')
-            f = open("completeduse.txt", "a")
+            f = open("completed.txt", "a")
             f.write(MovieName + '\n')
             f.close()
             print("Article "+ MovieName +" is done:")
@@ -399,33 +398,3 @@ startTime = time.time()
 getEachArticle()
 endTime = time.time()
 print("TIME ELAPSED = " + str(endTime - startTime))
-
-
-def run(dire): 
-    completedfile = open("completed.txt", "r")
-    completed = completedfile.readlines()
-    completedfile.close()
-    fileNames = os.listdir(str(dire))
-    for article_name in fileNames:
-        if os.path.getsize(dire + article_name) > 0:
-            if not article_name == '.DS_Store' and not article_name == '.gitignore':
-                if not (article_name[:-4] + '\n') in completed:  
-                    '''  
-                    arguments = sys.argv
-                    numOfRevi = num_of_revi('data_set/' + article_name)
-                    if len(arguments) < 2:
-                        revilimit = numOfRevi
-                    else:
-                        revilimit = int(sys.argv[1])
-                    '''
-                    plotDist(dire, article_name[:-4])
-                    print('')
-                    f = open("completeduse.txt", "a")
-                    f.write(article_name[:-4] + '\n')
-                    f.close()
-                    print("Article "+article_name[:-4]+" is done:")
-                    
-                else:
-                    print('Skipping ' + article_name[:-4])
-
-run('data_set/')
