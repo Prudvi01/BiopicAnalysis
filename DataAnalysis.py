@@ -9,6 +9,9 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from oresapi import Session
 import sys
+import wikipedia as wp
+
+
 #reload(sys)
 #sys.setdefaultencoding('utf8')
 
@@ -365,6 +368,7 @@ def getEachArticle() :
             i = 0
             namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
             name, url = list(movieDetails[MovieName][i].keys())[i].split('||')
+            name = wp.search(name)[0]
             date = dates[namefordate] if namefordate in dates else "--" 
             print(name, date)
             if date != "--": #because we couldn't get all release dates using IMDB API
