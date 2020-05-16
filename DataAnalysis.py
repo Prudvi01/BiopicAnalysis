@@ -365,31 +365,31 @@ def getEachArticle() :
         completed = completedfile.readlines()
         completedfile.close()
         if not (MovieName + '\n') in completed:  
-            i = 0
-            namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
-            name, url = list(movieDetails[MovieName][i].keys())[i].split('||')
-            name = wp.search(name)[0]
-            date = dates[namefordate] if namefordate in dates else "--" 
-            print(name, date)
-            if date != "--": #because we couldn't get all release dates using IMDB API
-                article = "dataset/" + name.replace(' ','_') + ".xml"
-                try:
-                    with open(article, 'r', encoding="utf-8") as f :
-                        di = xmltodict.parse(f.read())                    
-                except:
-                    print('File not found!', article)
-                    with open('filesnotfound.txt', 'a', encoding='utf-8') as f:
-                        f.write(name + '\n')
-                    continue
-                allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
-                savethese(allORES, metrics, counts, name)
-            else:
-                print('Skipping ' + MovieName + '. No date found')
-            print('')
-            f = open("completed.txt", "a")
-            f.write(MovieName + '\n')
-            f.close()
-            print("Article "+ MovieName +" is done:")
+            for i in range(len(movieDetails[MovieName])):
+                namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
+                name, url = list(movieDetails[MovieName][i].keys())[0].split('||')
+                name = wp.search(name)[0]
+                date = dates[namefordate] if namefordate in dates else "--" 
+                print(name, date)
+                if date != "--": #because we couldn't get all release dates using IMDB API
+                    article = "dataset/" + name.replace(' ','_') + ".xml"
+                    try:
+                        with open(article, 'r', encoding="utf-8") as f :
+                            di = xmltodict.parse(f.read())                    
+                    except:
+                        print('File not found!', article)
+                        with open('filesnotfound.txt', 'a', encoding='utf-8') as f:
+                            f.write(name + '\n')
+                        continue
+                    allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
+                    savethese(allORES, metrics, counts, name)
+                else:
+                    print('Skipping ' + MovieName + '. No date found')
+                print('')
+                f = open("completed.txt", "a")
+                f.write(MovieName + '\n')
+                f.close()
+                print("Article "+ MovieName +" is done:")
             
         else:
             print('Skipping ' + MovieName)
