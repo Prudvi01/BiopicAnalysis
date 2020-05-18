@@ -351,7 +351,7 @@ def getEachArticle() :
     	are available in the repository.
     	For each biopic, it performs proper analysis
     '''
-    with open("MovieDetails.json",'r') as f :
+    with open("tryagain.json",'r') as f :
         movieDetails = json.loads(f.read())
     
     movieNames = [x for x in movieDetails.keys()]
@@ -364,7 +364,7 @@ def getEachArticle() :
         completedfile = open("completed.txt", "r")
         completed = completedfile.readlines()
         completedfile.close()
-        if not (MovieName + '\n') in completed:  
+        if (MovieName + '\n') in completed:  
             for i in range(len(movieDetails[MovieName])):
                 namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
                 name, url = list(movieDetails[MovieName][i].keys())[0].split('||')
