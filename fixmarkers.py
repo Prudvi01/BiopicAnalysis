@@ -165,7 +165,7 @@ def getEachArticle():
                         continue
                     
                     ores = getores('results/ores/'+ name.replace(' ', '_') + '_ores.txt')
-                    ores = fixmarkers(name, date, di)
+                    ores = fixmarkers(name, date, di, ores)
                     #allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
                     #savethese(allORES, metrics, counts, name)
                 else:
