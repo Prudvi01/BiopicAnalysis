@@ -139,7 +139,7 @@ def run_metricsAnalysis():
         if not article == '.DS_Store' and not article == '.gitignore' and not article == 'Mother_Teresa_metrics.txt':
             #counts_slopesets = analyse_counts()
             metrics_slopesets = analyse_metrics(dire + article)
-            openfile = open('/Users/prudvikamtam/Projects/BiopicAnalysis/results/slopes/counts/metrics/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
+            openfile = open('results/slopes/metrics/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
             for dic in metrics_slopesets:
                     json.dump(dic, openfile) 
                     openfile.write("\n")
