@@ -163,9 +163,12 @@ def getEachArticle():
                         with open('filesnotfound.txt', 'a', encoding='utf-8') as f:
                             f.write(name + '\n')
                         continue
-                    
-                    ores = getores('results/ores/'+ name.replace(' ', '_') + '_ores.txt')
-                    ores = fixmarkers(name, date, di, ores)
+                    try:
+                        ores = getores('results/ores/'+ name.replace(' ', '_') + '_ores.txt')
+                        ores = fixmarkers(name, date, di, ores)
+                    except:
+                        continue
+
                     #allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
                     #savethese(allORES, metrics, counts, name)
                 else:
