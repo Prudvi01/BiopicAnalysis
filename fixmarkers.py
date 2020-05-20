@@ -146,7 +146,7 @@ def getEachArticle():
         completedfile = open("completedfixingmarkers.txt", "r")
         completed = completedfile.readlines()
         completedfile.close()
-        if (MovieName + '\n') in completed:  
+        if not (MovieName + '\n') in completed:  
             for i in range(len(movieDetails[MovieName])):
                 namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
                 name, url = list(movieDetails[MovieName][i].keys())[0].split('||')
@@ -178,3 +178,5 @@ def getEachArticle():
             
         else:
             print('Skipping ' + MovieName)
+
+getEachArticle()
