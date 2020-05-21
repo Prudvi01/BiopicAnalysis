@@ -166,10 +166,18 @@ def getEachArticle():
                     try:
                         ores = getores('results/ores/'+ name.replace(' ', '_') + '_ores.txt')
                         ores = fixmarkers(name, date, di, ores)
+                        ores_file = open('results/ores/'+ name.replace(' ', '_') + '_ores.txt', 'w', encoding='utf-8')
+                        for dic in ores:
+                            if type(dic) != str:
+                                json.dump(dic, ores_file) 
+                                ores_file.write("\n")
+                            else:
+                                ores_file.write(dic + '\n')
+                        ores_file.close()
                     except:
                         continue
 
-                    #allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
+                    # allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
                     #savethese(allORES, metrics, counts, name)
                 else:
                     print('Skipping ' + MovieName + '. No date found')
