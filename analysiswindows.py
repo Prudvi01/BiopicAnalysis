@@ -1,33 +1,10 @@
 """
-Finds the slopes of the counts and metrics.
+Finds the difference between the slopes of windows
+of size 60 and 120.
 """
-
 import pandas as pd
 from scipy.stats import linregress
 import os, sys, json
-
-# Print iterations progress
-def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
-
-    """
-    Call in a loop to create terminal progress bar
-    @params:
-        iteration   - Required  : current iteration (Int)
-        total       - Required  : total iterations (Int)
-        prefix      - Optional  : prefix string (Str)
-        suffix      - Optional  : suffix string (Str)
-        decimals    - Optional  : positive number of decimals in percent complete (Int)
-        length      - Optional  : character length of bar (Int)
-        fill        - Optional  : bar fill character (Str)
-        printEnd    - Optional  : end character (e.g. "\r", "\r\n") (Str)
-    """
-    percent = ("{0:." + str(decimals) + "f}").format(100 * (iteration / float(total)))
-    filledLength = int(length * iteration // total)
-    bar = fill * filledLength + '-' * (length - filledLength)
-    print('\r%s |%s| %s/%s %s%% %s' % (prefix, bar, iteration, total, percent, suffix), end = printEnd)
-    # Print New Line on Complete
-    if iteration == total: 
-        print()     
 
 def convert_to_list(lines):
     output = []
@@ -65,9 +42,12 @@ def findcountslopes(counts):
     words = []
     for entry in counts:
         if type(entry) != str:
-            wikilinks.append(entry['wikilinks'])
-            references.append(entry['references'])
-            words.append(entry['words'])
+            try:    
+                wikilinks.append(entry['wikilinks'])
+                references.append(entry['references'])
+                words.append(entry['words'])
+            except:
+                continue
     slopes = {}
     try:
         b = [x for x in range(len(words))]
@@ -91,7 +71,25 @@ def analyse_counts(filepath):
     slopesfull = findcountslopes(counts[:-1]) # All revisions
     slopesset120 = findcountslopes(counts[markers[0]+1:markers[4]]) # -120 to 120
     slopesset60 = findcountslopes(counts[markers[1]+1:markers[3]]) # -60 to 60
-    return (slopesfull, slopesset120, slopesset60)
+    slopeswindows = []
+    # print(counts[0:60])
+    for i, count in enumerate(counts[:-1]):
+        slopeswindows.append(findcountslopes(counts[i:i + 60]))
+
+    return (slopesfull, slopesset120, slopesset60, slopeswindows)
+
+def run_countsAnalysis():
+    dire = 'results/counts/'
+    fileNames = os.listdir(str(dire))
+    for article in fileNames:
+        print(article)
+        if not article == '.DS_Store' and not article == '.gitignore' and not article == 'Mother_Teresa_counts.txt':
+            metrics_slopesets = analyse_counts(dire + article)
+            openfile = open('results/slopeswindows/counts/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
+            for dic in metrics_slopesets:
+                    json.dump(dic, openfile) 
+                    openfile.write("\n")
+        openfile.close()
 
 def findmetricsslopes(metrics):
     fre = []
@@ -106,17 +104,19 @@ def findmetricsslopes(metrics):
     ts = []
     for entry in metrics:
         if type(entry) != str:
-            fre.append(entry['flesch_reading_ease'])
-            si.append(entry["smog_index"])
-            fkg.append(entry["flesch_kincaid_grade"])
-            cli.append(entry["coleman_liau_index"])
-            ari.append(entry["automated_readability_index"])
-            dcrs.append(entry["dale_chall_readability_score"])
-            dw.append(entry["difficult_words"])
-            lwf.append(entry["linsear_write_formula"])
-            gf.append(entry["gunning_fog"])
-            ts.append(entry["text_standard"])
-
+            try:
+                fre.append(entry['flesch_reading_ease'])
+                si.append(entry["smog_index"])
+                fkg.append(entry["flesch_kincaid_grade"])
+                cli.append(entry["coleman_liau_index"])
+                ari.append(entry["automated_readability_index"])
+                dcrs.append(entry["dale_chall_readability_score"])
+                dw.append(entry["difficult_words"])
+                lwf.append(entry["linsear_write_formula"])
+                gf.append(entry["gunning_fog"])
+                ts.append(entry["text_standard"])
+            except:
+                continue
     slopes = {}
     lists = [fre, si, fkg, cli, ari, dcrs, dw, lwf, gf]
     stringlist = ['fre', 'si', 'fkg', 'cli', 'ari', 'dcrs', 'dw', 'lwf', 'gf']
@@ -139,7 +139,12 @@ def analyse_metrics(filepath):
     slopesfull = findmetricsslopes(metrics) # All revisions
     slopesset120 = findmetricsslopes(metrics[markers[0]+1:markers[4]]) # -120 to 120
     slopesset60 = findmetricsslopes(metrics[markers[1]+1:markers[3]]) # -60 to 60
-    return (slopesfull, slopesset120, slopesset60)
+    slopeswindows = []
+    # print(counts[0:60])
+    for i, count in enumerate(metrics[:-1]):
+        slopeswindows.append(findmetricsslopes(metrics[i:i + 60]))
+    
+    return (slopesfull, slopesset120, slopesset60, slopeswindows)
 
 def run_metricsAnalysis():
     dire = 'results/metrics/'
@@ -154,24 +159,11 @@ def run_metricsAnalysis():
         if not article == '.DS_Store' and not article == '.gitignore' and not article == 'Mother_Teresa_metrics.txt':
             #counts_slopesets = analyse_counts()
             metrics_slopesets = analyse_metrics(dire + article)
-            openfile = open('results/slopes/metrics/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
+            openfile = open('results/slopeswindows/metrics/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
             for dic in metrics_slopesets:
                     json.dump(dic, openfile) 
                     openfile.write("\n")
         openfile.close()
 
-def run_countsAnalysis():
-    dire = 'results/counts/'
-    fileNames = os.listdir(str(dire))
-    for article in fileNames:
-        print(article)
-        if not article == '.DS_Store' and not article == '.gitignore' and not article == 'Mother_Teresa_counts.txt':
-            metrics_slopesets = analyse_counts(dire + article)
-            openfile = open('results/slopes/counts/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
-            for dic in metrics_slopesets:
-                    json.dump(dic, openfile) 
-                    openfile.write("\n")
-        openfile.close()
-                
+# run_countsAnalysis()
 run_metricsAnalysis()
-run_countsAnalysis()

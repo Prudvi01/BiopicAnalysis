@@ -344,7 +344,7 @@ def AnalyzeValidEdits(name, date, di):
     #plottheseforchristsake(allORES, metrics, counts)
     return allORES, metrics, counts
     
-def getEachArticle() :
+def getEachArticle():
     '''
     	This is the driver function, it gets the name of all biopics from MovieDetails.json
     	and their release dates from ReleaseDates from releaseDates.json. Both these files
