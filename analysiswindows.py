@@ -71,12 +71,53 @@ def analyse_counts(filepath):
     slopesfull = findcountslopes(counts[:-1]) # All revisions
     slopesset120 = findcountslopes(counts[markers[0]+1:markers[4]]) # -120 to 120
     slopesset60 = findcountslopes(counts[markers[1]+1:markers[3]]) # -60 to 60
-    slopeswindows = []
+    slopeswindows60 = []
     # print(counts[0:60])
     for i, count in enumerate(counts[:-1]):
-        slopeswindows.append(findcountslopes(counts[i:i + 60]))
+        slopeswindows60.append(findcountslopes(counts[i:i + 60]))
 
-    return (slopesfull, slopesset120, slopesset60, slopeswindows)
+    slopeswindows120 = []
+    for i, count in enumerate(counts[:-1]):
+        slopeswindows120.append(findcountslopes(counts[i:i + 120]))
+
+    markerwindows60 = [0, 0, 0] # Finding the index of windows containing the markers
+    markerwindows120 = [0, 0, 0] # Finding the index of windows containing the markers
+    
+    # Finding the windows where the markers are present for slopeswindows60
+    markerwindows60[0] = markers[1]//60 +  1 # -60 
+    markerwindows60[1] = markers[2]//60 +  1 # movie release
+    markerwindows60[2] = markers[3]//60 +  1 # 60
+
+    # Finding the windows where the markers are present for slopeswindows120
+    markerwindows120[0] = markers[0]//120 +  1 # -120 
+    markerwindows120[1] = markers[2]//120 +  1 # movie release
+    markerwindows120[2] = markers[4]//120 +  1 # 120
+
+
+    # print(markerwindows60)
+    # Marking the list of dictionaries of windows with markers for windows of 60 
+    for i, item in enumerate(slopeswindows60):   
+        if i == markerwindows60[1] - 1: # movie release
+            item['status'] = '60 before release'
+            continue    
+        if i == markerwindows60[1] + 1: # movie release
+            item['status'] = '60 after release'
+            continue     
+        # for every other window
+        item['status'] = 'None'
+
+    # Marking the list of dictionaries of windows with markers for windows of 120
+    for i, item in enumerate(slopeswindows120):
+        if i == markerwindows120[1] - 1: # movie release
+            item['status'] = '120 before release'
+            continue    
+        if i == markerwindows120[1] + 1: # movie release
+            item['status'] = '120 after release'
+            continue   
+        # for every other window
+        item['status'] = 'None'
+
+    return (slopesfull, slopesset120, slopesset60, slopeswindows60, slopeswindows120)
 
 def run_countsAnalysis():
     dire = 'results/counts/'
@@ -86,9 +127,24 @@ def run_countsAnalysis():
         if not article == '.DS_Store' and not article == '.gitignore' and not article == 'Mother_Teresa_counts.txt':
             metrics_slopesets = analyse_counts(dire + article)
             openfile = open('results/slopeswindows/counts/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
-            for dic in metrics_slopesets:
-                    json.dump(dic, openfile) 
-                    openfile.write("\n")
+            for dic in metrics_slopesets[:-2]:
+                json.dump(dic, openfile) 
+                openfile.write("\n")
+            item = metrics_slopesets[3]
+            json.dump(sorted(item, key = lambda i: i['words']), openfile) 
+            openfile.write("\n")
+            json.dump(sorted(item, key = lambda i: i['wikilinks']), openfile) 
+            openfile.write("\n")
+            json.dump(sorted(item, key = lambda i: i['references']), openfile) 
+            openfile.write("\n")
+
+            item = metrics_slopesets[4]
+            json.dump(sorted(item, key = lambda i: i['words']), openfile) 
+            openfile.write("\n")
+            json.dump(sorted(item, key = lambda i: i['wikilinks']), openfile) 
+            openfile.write("\n")
+            json.dump(sorted(item, key = lambda i: i['references']), openfile) 
+            openfile.write("\n")
         openfile.close()
 
 def findmetricsslopes(metrics):
@@ -139,12 +195,53 @@ def analyse_metrics(filepath):
     slopesfull = findmetricsslopes(metrics) # All revisions
     slopesset120 = findmetricsslopes(metrics[markers[0]+1:markers[4]]) # -120 to 120
     slopesset60 = findmetricsslopes(metrics[markers[1]+1:markers[3]]) # -60 to 60
-    slopeswindows = []
+    slopeswindows60 = []
     # print(counts[0:60])
     for i, count in enumerate(metrics[:-1]):
-        slopeswindows.append(findmetricsslopes(metrics[i:i + 60]))
+        slopeswindows60.append(findmetricsslopes(metrics[i:i + 60]))
+
+    slopeswindows120 = []
+    for i, count in enumerate(metrics[:-1]):
+        slopeswindows120.append(findcountslopes(metrics[i:i + 120]))
+
+    markerwindows60 = [0, 0, 0] # Finding the index of windows containing the markers
+    markerwindows120 = [0, 0, 0] # Finding the index of windows containing the markers
     
-    return (slopesfull, slopesset120, slopesset60, slopeswindows)
+    # Finding the windows where the markers are present for slopeswindows60
+    markerwindows60[0] = markers[1]//60 +  1 # -60 
+    markerwindows60[1] = markers[2]//60 +  1 # movie release
+    markerwindows60[2] = markers[3]//60 +  1 # 60
+
+    # Finding the windows where the markers are present for slopeswindows120
+    markerwindows120[0] = markers[0]//120 +  1 # -120 
+    markerwindows120[1] = markers[2]//120 +  1 # movie release
+    markerwindows120[2] = markers[4]//120 +  1 # 120
+
+
+    # print(markerwindows60)
+    # Marking the list of dictionaries of windows with markers for windows of 60 
+    for i, item in enumerate(slopeswindows60):   
+        if i == markerwindows60[1] - 1: # movie release
+            item['status'] = '60 before release'
+            continue    
+        if i == markerwindows60[1] + 1: # movie release
+            item['status'] = '60 after release'
+            continue     
+        # for every other window
+        item['status'] = 'None'
+
+    # Marking the list of dictionaries of windows with markers for windows of 120
+    for i, item in enumerate(slopeswindows120):
+        if i == markerwindows120[1] - 1: # movie release
+            item['status'] = '120 before release'
+            continue    
+        if i == markerwindows120[1] + 1: # movie release
+            item['status'] = '120 after release'
+            continue   
+        # for every other window
+        item['status'] = 'None'
+
+    return (slopesfull, slopesset120, slopesset60, slopeswindows60, slopeswindows120)
 
 def run_metricsAnalysis():
     dire = 'results/metrics/'
@@ -160,9 +257,19 @@ def run_metricsAnalysis():
             #counts_slopesets = analyse_counts()
             metrics_slopesets = analyse_metrics(dire + article)
             openfile = open('results/slopeswindows/metrics/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
-            for dic in metrics_slopesets:
-                    json.dump(dic, openfile) 
-                    openfile.write("\n")
+            for dic in metrics_slopesets[:-2]:
+                json.dump(dic, openfile) 
+                openfile.write("\n")
+            item = metrics_slopesets[3]
+            metriclist = ['fre', 'si', 'fkg', 'cli', 'ari', 'dcrs', 'dw', 'lwf', 'gf']
+            for x in metriclist:
+                json.dump(sorted(item, key = lambda i: i[x]), openfile) 
+                openfile.write("\n")
+
+            item = metrics_slopesets[4]
+            for x in metriclist:
+                json.dump(sorted(item, key = lambda i: i[x]), openfile) 
+                openfile.write("\n")
         openfile.close()
 
 # run_countsAnalysis()
