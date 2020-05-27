@@ -36,16 +36,19 @@ def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, 
 
 def convert_to_list(lines):
     output = []
+    true = 1
+    false = 0
     for x in lines:
         try:
             output.append(eval(x[:-1]))
         except:
-            continue
+            output.append(x[:-1])
     return output
 
 def cleanmarkers(ores):
     for item in ores:
         if type(item) == str:
+            # print(item)
             ores.remove(item)
     return ores
 
@@ -73,7 +76,7 @@ def getores(filepath):
         lines = f.readlines()
         lines = list(dict.fromkeys(lines))
     ores = convert_to_list(lines)
-    # ores = cleanmarkers(ores)
+    ores = cleanmarkers(ores)
     return ores
 
 def fixmarkers(name, date, di, ores):
@@ -126,6 +129,15 @@ def fixmarkers(name, date, di, ores):
 
     return ores
 
+def removegarbage(ores):
+    for i, item in enumerate(ores):
+        try:
+            if 'error' in item['damaging'].keys():
+                ores.remove(ores[i])
+        except:
+            continue
+    return ores
+
 def getEachArticle():
     '''
     	This is the driver function, it gets the name of all biopics from MovieDetails.json
@@ -146,7 +158,7 @@ def getEachArticle():
         completedfile = open("completedfixingmarkers.txt", "r")
         completed = completedfile.readlines()
         completedfile.close()
-        if not (MovieName + '\n') in completed:  
+        if not (MovieName + '\n') in completed:
             for i in range(len(movieDetails[MovieName])):
                 namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
                 name, url = list(movieDetails[MovieName][i].keys())[0].split('||')
@@ -166,6 +178,7 @@ def getEachArticle():
                     try:
                         ores = getores('results/ores/'+ name.replace(' ', '_') + '_ores.txt')
                         ores = fixmarkers(name, date, di, ores)
+                        ores = removegarbage(ores)
                         ores_file = open('results/ores/'+ name.replace(' ', '_') + '_ores.txt', 'w', encoding='utf-8')
                         for dic in ores:
                             if type(dic) != str:
@@ -176,9 +189,6 @@ def getEachArticle():
                         ores_file.close()
                     except:
                         continue
-
-                    # allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
-                    #savethese(allORES, metrics, counts, name)
                 else:
                     print('Skipping ' + MovieName + '. No date found')
                 print('')
