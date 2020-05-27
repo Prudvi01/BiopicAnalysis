@@ -40,7 +40,7 @@ def convert_to_list(lines):
         try:
             output.append(eval(x[:-1]))
         except:
-            output.append(x[:-1])
+            continue
     return output
 
 def cleanmarkers(ores):
@@ -73,7 +73,7 @@ def getores(filepath):
         lines = f.readlines()
         lines = list(dict.fromkeys(lines))
     ores = convert_to_list(lines)
-    ores = cleanmarkers(ores)
+    # ores = cleanmarkers(ores)
     return ores
 
 def fixmarkers(name, date, di, ores):
