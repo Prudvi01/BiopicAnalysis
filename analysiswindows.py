@@ -202,7 +202,7 @@ def analyse_metrics(filepath):
 
     slopeswindows120 = []
     for i, count in enumerate(metrics[:-1]):
-        slopeswindows120.append(findcountslopes(metrics[i:i + 120]))
+        slopeswindows120.append(findmetricsslopes(metrics[i:i + 120]))
 
     markerwindows60 = [0, 0, 0] # Finding the index of windows containing the markers
     markerwindows120 = [0, 0, 0] # Finding the index of windows containing the markers
@@ -261,7 +261,7 @@ def run_metricsAnalysis():
                 json.dump(dic, openfile) 
                 openfile.write("\n")
             item = metrics_slopesets[3]
-            metriclist = ['fre', 'si', 'fkg', 'cli', 'ari', 'dcrs', 'dw', 'lwf', 'gf']
+            metriclist = ["fre", "si", "fkg", "cli", "ari", "dcrs", "dw", "lwf", "gf"]
             for x in metriclist:
                 json.dump(sorted(item, key = lambda i: i[x]), openfile) 
                 openfile.write("\n")
