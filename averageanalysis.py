@@ -1,5 +1,5 @@
 '''
-Compute the total, +60,-60 and +120, -120 averages for all metrics
+Compute the total, +60,-60 and +120, -120 averages for all counts, metrics and ORES
 '''
 import os
 import pandas as pd
@@ -167,5 +167,66 @@ def run_metricsAnalysis():
     df = pd.DataFrame(rows_list)
     df.to_csv('AvgStd_metrics.csv', encoding='utf-8')
 
-# run_countAnalysis() 
+def findoresavgstd(ores):
+    damaging = []
+    goodfaith = []
+    for entry in ores:
+        if type(entry) != str:
+            try:
+                damaging.append(entry["damaging"]["score"]["probability"]["true"])
+                goodfaith.append(entry["goodfaith"]["score"]["probability"]["true"])
+            except:
+                continue
+
+    avgs = {}
+    stds = {}
+    lists = [damaging, goodfaith]
+    stringlist = ['damaging', 'goodfaith']
+    try:
+        for i, item in enumerate(lists):
+            avgs[stringlist[i]] = mean(item)
+            stds[stringlist[i]] = std(item)
+    except:
+        avgs = {'damaging': 0.5, 'goodfaith': 0.5}
+        stds = {'damaging': 0.5, 'goodfaith': 0.5}
+    return (avgs, stds)
+
+def analyse_ores(filepath):
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+        lines = list(dict.fromkeys(lines))
+
+    ores = convert_to_list(lines)
+    markers = findmarkers(ores)
+
+    avgstdfull = findoresavgstd(ores[:-1]) # All revisions
+    avgstdset120 = findoresavgstd(ores[markers[0]+1:markers[4]]) # -120 to 120
+    avgstdset60 = findoresavgstd(ores[markers[1]+1:markers[3]]) # -60 to 60
+    return (avgstdfull, avgstdset120, avgstdset60)
+
+def run_oresAnalyisis():
+    path = 'results/ores/'
+    files = os.listdir(path)
+    rows_list = []
+    for article in files:
+        print(article)
+        if not article == '.DS_Store' and not article == '.gitignore':
+            avgstdfull, avgstdset120, avgstdset60 = analyse_ores(path + article)
+            oreslist = ['damaging', 'goodfaith']
+            entrydict = {}
+            entrydict['Article name'] = article[:-4]
+            for item in oreslist:
+                entrydict['Avg '+item+ ' of all Revi'] = avgstdfull[0][item]
+                entrydict['STD '+item+ ' of all Revi'] = avgstdfull[1][item]
+                entrydict['Avg '+item+ ' of 120 frame'] = avgstdset120[0][item]
+                entrydict['STD '+item+ ' of 120 frame'] = avgstdset120[1][item]
+                entrydict['Avg '+item+ ' of 60 frame'] = avgstdset60[0][item]
+                entrydict['STD '+item+ ' of 60 frame'] = avgstdset60[1][item]
+            rows_list.append(entrydict)
+    
+    df = pd.DataFrame(rows_list)
+    df.to_csv('AvgStd_ores.csv', encoding='utf-8')
+
+run_countAnalysis() 
 run_metricsAnalysis()
+# run_oresAnalyisis()

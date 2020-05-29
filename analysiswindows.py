@@ -272,5 +272,5 @@ def run_metricsAnalysis():
                 openfile.write("\n")
         openfile.close()
 
-# run_countsAnalysis()
+run_countsAnalysis()
 run_metricsAnalysis()

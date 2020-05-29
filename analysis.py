@@ -1,5 +1,5 @@
 """
-Finds the slopes of the counts and metrics.
+Finds the slopes of the counts, metrics and ores.
 """
 
 import pandas as pd
@@ -141,6 +141,41 @@ def analyse_metrics(filepath):
     slopesset60 = findmetricsslopes(metrics[markers[1]+1:markers[3]]) # -60 to 60
     return (slopesfull, slopesset120, slopesset60)
 
+def findoresslopes(ores):
+    damaging = []
+    goodfaith = []
+    for entry in ores:
+        if type(entry) != str:
+            try:
+                damaging.append(entry["damaging"]["score"]["probability"]["true"])
+                goodfaith.append(entry["goodfaith"]["score"]["probability"]["true"])
+            except:
+                continue
+
+    slopes = {}
+    lists = [damaging, goodfaith]
+    stringlist = ['damaging', 'goodfaith']
+    try:
+        for i, item in enumerate(lists):
+            b = [x for x in range(len(item))]
+            slopes[stringlist[i]] = linregress(item, b)[0]
+    except:
+        slopes = {'damaging': 0, 'goodfaith': 0}
+    return slopes
+
+def analyse_ores(filepath):
+    with open(filepath, 'r') as f:
+        lines = f.readlines()
+        lines = list(dict.fromkeys(lines))
+
+    ores = convert_to_list(lines)
+    markers = findmarkers(ores)
+
+    slopesfull = findoresslopes(ores) # All revisions
+    slopesset120 = findoresslopes(ores[markers[0]+1:markers[4]]) # -120 to 120
+    slopesset60 = findoresslopes(ores[markers[1]+1:markers[3]]) # -60 to 60
+    return (slopesfull, slopesset120, slopesset60)
+
 def run_metricsAnalysis():
     dire = 'results/metrics/'
     fileNames = os.listdir(str(dire))
@@ -172,6 +207,20 @@ def run_countsAnalysis():
                     json.dump(dic, openfile) 
                     openfile.write("\n")
         openfile.close()
-                
+
+def run_oresAnalysis():
+    dire = 'results/ores/'
+    fileNames = os.listdir(str(dire))
+    for article in fileNames:
+        print(article)
+        if not article == '.DS_Store' and not article == '.gitignore':
+            ores_slopesets = analyse_ores(dire + article)
+            openfile = open('results/slopes/ores/'+ article[:-4] + '.txt', 'w', encoding='utf-8')
+            for dic in ores_slopesets:
+                    json.dump(dic, openfile) 
+                    openfile.write("\n")
+        openfile.close()
+
 run_metricsAnalysis()
 run_countsAnalysis()
+# run_oresAnalysis()

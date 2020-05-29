@@ -171,10 +171,10 @@ def run_metricswindowsAnalysis():
             rows_list120.append(dict120)
     df1 = pd.DataFrame(rows_list60) 
     df2 = pd.DataFrame(rows_list120)
-    df1.to_csv('slopewindowrank_metrics601.csv', encoding='utf-8')
+    df1.to_csv('slopewindowrank_metrics60.csv', encoding='utf-8')
     df2.to_csv('slopewindowrank_metrics120.csv', encoding='utf-8')
 # analysis_countswindows('results/slopeswindows/counts/Diana,_Princess_of_Wales_counts.txt')
 # analysis_metricswindows('results/slopeswindows/metrics/Jiro_Horikoshi_metrics.txt')
 
-# run_countswindowsAnalysis()
+run_countswindowsAnalysis()
 run_metricswindowsAnalysis()
