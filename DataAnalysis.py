@@ -374,26 +374,29 @@ def getEachArticle():
                 name = wp.search(name)[0]
                 date = dates[namefordate] if namefordate in dates else "--" 
                 print(name, date)
-                if date != "--": #because we couldn't get all release dates using IMDB API
-                    article = "dataset/" + name.replace(' ','_') + ".xml"
-                    try:
-                        with open(article, 'r', encoding="utf-8") as f :
-                            di = xmltodict.parse(f.read())                    
-                    except:
-                        print('File not found!', article)
-                        with open('filesnotfound.txt', 'a', encoding='utf-8') as f:
-                            f.write(name + '\n')
-                        continue
-                    metrics, counts = AnalyzeValidEdits(name, date, di) # vaild means before and after 60 days
-                    savethese(metrics, counts, name)
-                else:
-                    print('Skipping ' + MovieName + '. No date found')
-                print('')
-                f = open("completed.txt", "a")
-                f.write(MovieName + '\n')
-                f.close()
-                print("Article "+ MovieName +" is done:")
-            
+                try:
+                    if date != "--": #because we couldn't get all release dates using IMDB API
+                        article = "dataset/" + name.replace(' ','_') + ".xml"
+                        try:
+                            with open(article, 'r', encoding="utf-8") as f :
+                                di = xmltodict.parse(f.read())                    
+                        except:
+                            print('File not found!', article)
+                            with open('filesnotfound.txt', 'a', encoding='utf-8') as f:
+                                f.write(name + '\n')
+                            continue
+                        metrics, counts = AnalyzeValidEdits(name, date, di) # vaild means before and after 60 days
+                        savethese(metrics, counts, name)
+                    else:
+                        print('Skipping ' + MovieName + '. No date found')
+                    print('')
+                    f = open("completed.txt", "a")
+                    f.write(MovieName + '\n')
+                    f.close()
+                    print("Article "+ MovieName +" is done:")
+                except:
+                    print('Some error while analysing file ' + str(name.replace(' ','_') + ".xml. Skipping!"))
+                    continue
         else:
             print('Skipping ' + MovieName)
 
