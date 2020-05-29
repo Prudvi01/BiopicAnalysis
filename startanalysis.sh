@@ -1,4 +1,7 @@
 #!/bin/bash
-python test.py &&
-python test2.py &&
-python test3.py 
+python averageanalysis.py &&
+python analysis.py &&
+python analysiswindows.py &&
+python windowanalysis.py &&
+python csvanalysis.py &&
+python sendemail.py
