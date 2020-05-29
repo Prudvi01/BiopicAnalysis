@@ -219,7 +219,7 @@ def plottheseforchristsake(allORES, metrics, counts):
     plotcounts(counts)
     plotores(allORES)
 
-def savethese(allORES, metrics, counts, name):
+def savethese(metrics, counts, name):
     name = name.replace(' ', '_')
     print(name)
     # ores_file = open('results/ores/'+ name + '_ores.txt', 'w', encoding='utf-8')
