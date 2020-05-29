@@ -1,3 +1,4 @@
+'''
 import json
 def intersection(lst1, lst2): 
     lst3 = [value for value in lst1 if value in lst2] 
@@ -41,4 +42,5 @@ with open("useable.txt", "a") as f:
     for name in usable:
         f.write(name + '\n')
 
-        
+        '''
+print('TEST 1')
