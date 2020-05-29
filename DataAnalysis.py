@@ -15,7 +15,7 @@ import wikipedia as wp
 #reload(sys)
 #sys.setdefaultencoding('utf8')
 
-allORES = [] # will store ORES scores for all revisions
+# allORES = [] # will store ORES scores for all revisions
 
 # Print iterations progress
 def printProgressBar (iteration, total, prefix = '', suffix = '', decimals = 1, length = 100, fill = '#', printEnd = "\r"):
@@ -222,15 +222,17 @@ def plottheseforchristsake(allORES, metrics, counts):
 def savethese(allORES, metrics, counts, name):
     name = name.replace(' ', '_')
     print(name)
-    ores_file = open('results/ores/'+ name + '_ores.txt', 'w', encoding='utf-8')
+    # ores_file = open('results/ores/'+ name + '_ores.txt', 'w', encoding='utf-8')
     counts_file = open('results/counts/'+ name + '_counts.txt', 'w', encoding='utf-8')
     metrics_file = open('results/metrics/'+ name + '_metrics.txt', 'w', encoding='utf-8')
+    '''
     for dic in allORES:
         if type(dic) != str:
             json.dump(dic, ores_file) 
             ores_file.write("\n")
         else:
             ores_file.write(dic + '\n')
+    '''
 
     for dic in metrics:
         if type(dic) != str:
@@ -246,7 +248,7 @@ def savethese(allORES, metrics, counts, name):
         else:
             counts_file.write(dic + '\n')
 
-    ores_file.close()
+    # ores_file.close()
     metrics_file.close()
     counts_file.close()
 
@@ -280,7 +282,7 @@ def AnalyzeValidEdits(name, date, di):
                 breaker[0] = 1
                 metrics.append('reviafterrelease')
                 counts.append('reviafterrelease')
-                allORES.append('reviafterrelease')
+                # allORES.append('reviafterrelease')
                 reviafterrelease = i # First revision after release
                 firstrevidateafterelease = RevisionDate # Revision date afte the movie release
 
@@ -293,28 +295,28 @@ def AnalyzeValidEdits(name, date, di):
                 breaker[1] = 1
                 metrics.append('120 days start')
                 counts.append('120 days start')
-                allORES.append('120 days start')
+                # allORES.append('120 days start')
 
         if diff >= -60:
             if breaker[2] == 0:
                 breaker[2] = 1
                 metrics.append('60 days start')
                 counts.append('60 days start')
-                allORES.append('60 days start')
+                # allORES.append('60 days start')
 
         if diff > 60:
             if breaker[3] == 0:
                 breaker[3] = 1
                 metrics.append('60 days end')
                 counts.append('60 days end')
-                allORES.append('60 days end')
+                # allORES.append('60 days end')
         
         if diff > 120:
             if breaker[4] == 0:
                 breaker[4] = 1
                 metrics.append('120 days end')
                 counts.append('120 days end')
-                allORES.append('120 days end')
+                # allORES.append('120 days end')
                 
         '''
         if diff > 200:
@@ -328,11 +330,12 @@ def AnalyzeValidEdits(name, date, di):
         except:
             pass
         
+        '''
         if len(revs) >= 50 : # since ORES scores are to be calculated in batches of 50s
             revids = [int(x) for x in revs] #str(revs).replace(', ','|')[1:-1].replace("'","")
             revs = []
             updateORES(revids)
-    
+        '''
         try:
             if sha1[sha1Value]:
                 sha1[sha1Value] += 1
@@ -342,7 +345,7 @@ def AnalyzeValidEdits(name, date, di):
     
     
     #plottheseforchristsake(allORES, metrics, counts)
-    return allORES, metrics, counts
+    return metrics, counts
     
 def getEachArticle():
     '''
@@ -381,8 +384,8 @@ def getEachArticle():
                         with open('filesnotfound.txt', 'a', encoding='utf-8') as f:
                             f.write(name + '\n')
                         continue
-                    allORES, metrics, counts = AnalyzeValidEdits(name, date, di) #vaild means before and after 60 days
-                    savethese(allORES, metrics, counts, name)
+                    metrics, counts = AnalyzeValidEdits(name, date, di) # vaild means before and after 60 days
+                    savethese(metrics, counts, name)
                 else:
                     print('Skipping ' + MovieName + '. No date found')
                 print('')
