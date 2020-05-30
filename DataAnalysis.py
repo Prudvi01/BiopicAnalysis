@@ -376,7 +376,7 @@ def getEachArticle():
                 print(name, date)
                 try:
                     if date != "--": #because we couldn't get all release dates using IMDB API
-                        article = r"dataset/" + name + ".xml"
+                        article = r"dataset/" + name.replace(' ', '_') + ".xml"
                         try:
                             with open(article, 'r', encoding="utf-8") as f :
                                 di = xmltodict.parse(f.read())                    
