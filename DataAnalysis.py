@@ -376,7 +376,7 @@ def getEachArticle():
                 print(name, date)
                 try:
                     if date != "--": #because we couldn't get all release dates using IMDB API
-                        article = "dataset/" + name.replace(' ','_') + ".xml"
+                        article = "dataset/" + name+ ".xml"
                         try:
                             with open(article, 'r', encoding="utf-8") as f :
                                 di = xmltodict.parse(f.read())                    
@@ -395,7 +395,7 @@ def getEachArticle():
                     f.close()
                     print("Article "+ MovieName +" is done:")
                 except:
-                    print('Some error while analysing file ' + str(name.replace(' ','_') + ".xml. Skipping!"))
+                    print('Some error while analysing file ' + str(name)+ ".xml. Skipping!")
                     continue
         else:
             print('Skipping ' + MovieName)
