@@ -21,14 +21,14 @@ f.write('==================== COUNTS ====================')
 f.write('\n')
 # printing the counts's average and std statistics
 data = pd.read_csv('AvgStd_counts.csv')
-f.write('\nNUMBER OF ARTICLES (TOTAL = '+str(data.shape()[0])+') WHERE AVERAGE OF: \n')
+f.write('\nNUMBER OF ARTICLES (TOTAL = '+str(data.shape[0])+') WHERE AVERAGE OF: \n')
 f.write('\n')
 for item in avgstdcounts_list:
     for frame in avgstdframes:
         f.write(item+' in '+frame+' is greater than all revisions = ' + str(query('Avg '+item+' of '+frame,'Avg '+item+' of all Revi'))) # should be high
         f.write('\n')
 
-f.write('\nNUMBER OF ARTICLES (TOTAL = '+str(data.shape()[0])+') WHERE STD OF: \n')
+f.write('\nNUMBER OF ARTICLES (TOTAL = '+str(data.shape[0])+') WHERE STD OF: \n')
 f.write('\n')
 for item in avgstdcounts_list:
     for frame in avgstdframes:
@@ -38,7 +38,7 @@ for item in avgstdcounts_list:
 # printing the counts's 60 and 120 frames's slope window ranks statistics
 data = pd.read_csv('slopewindowrank_counts60.csv')
 
-f.write('\nFOR WINDOW SIZE OF 60 NUMBER OF FILES (TOTAL = '+str(data.shape()[0])+') WHERE :\n')
+f.write('\nFOR WINDOW SIZE OF 60 NUMBER OF FILES (TOTAL = '+str(data.shape[0])+') WHERE :\n')
 f.write('\n')
 for item in counts_list:
     f.write(item + ' rank BR is greater than '+item+' rank AR = ', str(query(item+' Rank BR', item+' Rank AR'))) # should be high
@@ -46,7 +46,7 @@ for item in counts_list:
 
 data = pd.read_csv('slopewindowrank_counts120.csv')
 
-f.write('\nFOR WINDOW SIZE OF 120 NUMBER OF FILES (TOTAL = '+str(data.shape()[0])+') WHERE :\n')
+f.write('\nFOR WINDOW SIZE OF 120 NUMBER OF FILES (TOTAL = '+str(data.shape[0])+') WHERE :\n')
 f.write('\n')
 for item in counts_list:
     f.write(item + ' rank BR is greater than '+item+' rank AR = ', str(query(item+' Rank BR', item+' Rank AR'))) # should be high
@@ -56,14 +56,14 @@ f.write('\n==================== METRICS ====================')
 f.write('\n')
 # printing the metrics's average and std statistics
 data = pd.read_csv('AvgStd_metrics.csv')
-f.write('\nNUMBER OF ARTICLES (TOTAL = '+str(data.shape()[0])+') WHERE AVERAGE OF: \n')
+f.write('\nNUMBER OF ARTICLES (TOTAL = '+str(data.shape[0])+') WHERE AVERAGE OF: \n')
 f.write('\n')
 for item in avgstdmetric_list:
     for frame in avgstdframes:
         f.write(item+' in '+frame+' is greater than all revisions = ' + str(query('Avg '+item+' of '+frame,'Avg '+item+' of all Revi'))) # should be high
         f.write('\n')
 
-f.write('\nNUMBER OF ARTICLES (TOTAL = '+str(data.shape()[0])+') WHERE STD OF: \n')
+f.write('\nNUMBER OF ARTICLES (TOTAL = '+str(data.shape[0])+') WHERE STD OF: \n')
 f.write('\n')
 for item in avgstdmetric_list:
     for frame in avgstdframes:
@@ -73,14 +73,14 @@ for item in avgstdmetric_list:
 # printing the metrics's 60 and 120 frames's slope window ranks statistics
 data = pd.read_csv('slopewindowrank_metrics60.csv')
 
-f.write('\nFOR WINDOW SIZE OF 60 NUMBER OF FILES (TOTAL = '+str(data.shape()[0])+') WHERE :\n')
+f.write('\nFOR WINDOW SIZE OF 60 NUMBER OF FILES (TOTAL = '+str(data.shape[0])+') WHERE :\n')
 f.write('\n')
 for item in metric_list:
     f.write(item + ' rank BR is greater than '+item+' rank AR = ', str(query(item+' Rank BR', item+' Rank AR'))) # should be high
     f.write('\n')
 
 data = pd.read_csv('slopewindowrank_metrics120.csv')
-f.write('\nFOR WINDOW SIZE OF 120 NUMBER OF FILES (TOTAL = '+str(data.shape()[0])+') WHERE :\n')
+f.write('\nFOR WINDOW SIZE OF 120 NUMBER OF FILES (TOTAL = '+str(data.shape[0])+') WHERE :\n')
 f.write('\n')
 for item in metric_list:
     f.write(item + ' rank BR is greater than '+item+' rank AR = ', str(query(item+' Rank BR', item+' Rank AR'))) # should be high
