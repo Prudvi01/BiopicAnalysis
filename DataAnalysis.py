@@ -379,13 +379,14 @@ def getEachArticle():
                     if date != "--": #because we couldn't get all release dates using IMDB API
                         article = r"dataset/" + name.replace(' ', '_') + ".xml"
                         try:
+                            print('trying ', article)
                             with open(article, 'r', encoding="utf-8") as f :
                                 di = xmltodict.parse(f.read())                    
                         except:
                             print('File not found!', article)
                             article = r"dataset/" + name + ".xml"
-                            print('trying ', article)
                             try:
+                                print('trying ', article)
                                 with open(article, 'r', encoding="utf-8") as f :
                                     di = xmltodict.parse(f.read()) 
                             except:    
@@ -399,7 +400,7 @@ def getEachArticle():
                         print('Skipping ' + MovieName + '. No date found')
                     print('')
                     f = open("completed.txt", "a")
-                    f.write(MovieName + '\n')
+                    f.write(name + '\n')
                     f.close()
                     print("Article "+ MovieName +" is done:")
                 except:
