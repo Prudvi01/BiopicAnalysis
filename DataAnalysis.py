@@ -367,12 +367,13 @@ def getEachArticle():
         completedfile = open("completed.txt", "r")
         completed = completedfile.readlines()
         completedfile.close()
-        if not (MovieName + '\n') in completed:  
-            for i in range(len(movieDetails[MovieName])):
-                namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
-                name, url = list(movieDetails[MovieName][i].keys())[0].split('||')
-                name = wp.search(name)[0]
-                date = dates[namefordate] if namefordate in dates else "--" 
+        # if not (MovieName + '\n') in completed:  
+        for i in range(len(movieDetails[MovieName])):
+            namefordate = MovieName.split('||')[0] # "Walt Before Mickey"
+            name, url = list(movieDetails[MovieName][i].keys())[0].split('||')
+            name = wp.search(name)[0]
+            date = dates[namefordate] if namefordate in dates else "--" 
+            if not (name + '\n') in completed:
                 print(name, date)
                 try:
                     if date != "--": #because we couldn't get all release dates using IMDB API
@@ -403,8 +404,9 @@ def getEachArticle():
                     print("Article "+ MovieName +" is done:")
                 except:
                     print('Some error while analysing file ' + str(name.replace(' ','_')) + ".xml. Skipping!")
-        else:
-            print('Skipping ' + MovieName)
+            else:
+                print('Skipping ' + name)
+        print(MovieName.split('||', ' ') + ' is completed')
 
         
 '''
