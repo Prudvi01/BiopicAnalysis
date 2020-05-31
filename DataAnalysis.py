@@ -406,7 +406,7 @@ def getEachArticle():
                     print('Some error while analysing file ' + str(name.replace(' ','_')) + ".xml. Skipping!")
             else:
                 print('Skipping ' + name)
-        print(MovieName.split('||', ' ')[0] + ' is completed')
+        print(MovieName + ' is completed')
 
         
 '''
